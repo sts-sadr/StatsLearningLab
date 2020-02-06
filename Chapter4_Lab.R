@@ -27,7 +27,7 @@ contrasts(Direction) #show the class, the function creates dummy variables for c
 glm.pred = rep("Down", 1250)
 glm.pred[logis.pred >.5] = 'Up'  
 #show the confusion matrix in the train model
-table(glm.pred, Direction) #stupid even consider the error rate
+table(glm.pred, Direction) #stupid even consider the training error rate
 
 ###################
 ##Build model with train and test data
@@ -46,3 +46,50 @@ predict(glm.fit, newdata = data.frame(Lag1 = 1.2, Lag2=1.3, Lag3=2.5,
                                       Lag4=2.1, Lag5=4.1, Volume=2),
         type = "response")
 
+##############################
+#Linear Discriminant Analysis 
+##############################
+library(MASS)
+#build model
+lda.fit = lda(Direction~Lag1+Lag2, data = Smarket, subset = train)
+names(lda.fit)
+lda.fit$means #means of different classes, we need the mean vector  
+lda.fit$scaling #coefficient 
+plot(lda.fit)
+#predict 
+lda.pred = predict(lda.fit, test.x[, 2:3])
+names(lda.pred)
+lda.pred$class #predicted class
+lda.pred$posterior #posterior values
+lda.pred$x ###what is this? 
+
+lda.class = lda.pred$class
+table(lda.class, test.y)
+
+#################################
+#Quadratic Discriminant Analysis
+#################################
+qda.fit = qda(Direction~Lag1+Lag2, data = Smarket, subset = train)
+names(qda.fit)
+qda.pred = predict(qda.fit, test.x)
+names(qda.pred)
+qda.class = qda.pred$class #predicted class 
+table(qda.class, test.y) #confusion matrix
+
+##################################
+#K-nearest Neighbors
+##################################
+library(class)
+train = (Year<2005)
+x.test = cbind(Lag1, Lag2)[!train, ]
+x.train = cbind(Lag1, Lag2)[train,]
+y.train = Direction[train]
+y.test = Direction[!train]
+
+#build KNN
+set.seed(1)
+knn.pred = knn(x.train, x.test, y.train, k=1)
+table(knn.pred, y.test)
+#change k to 3
+knn.pred2 = knn(x.train, x.test, y.train, k=3)
+table(knn.pred2, y.test)
