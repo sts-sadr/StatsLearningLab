@@ -93,3 +93,26 @@ table(knn.pred, y.test)
 #change k to 3
 knn.pred2 = knn(x.train, x.test, y.train, k=3)
 table(knn.pred2, y.test)
+
+
+########################################
+#A Application to Caravan Insurance Data
+########################################
+dim(Caravan)
+attach(Caravan)
+summary(Purchase)
+#we first standardize the data, becasue different scales
+standard.x = scale(Caravan[, -86]) #scale function standardize the variables 
+var(Caravan[, 1])
+var(standard.x[, 1])
+#split the dataset into train and testing
+test = 1:1000
+x.train = standard.x[-test, ] 
+y.train = Purchase[-test]
+x.test = standard.x[test, ]
+y.test = Purchase[test]
+set.seed(1)
+knn.pred = knn(x.train, x.test, y.train, k=3)
+knn.pred
+table(knn.pred, y.test)
+
